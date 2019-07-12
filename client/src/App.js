@@ -3,55 +3,36 @@ import FacebookLogin from 'react-facebook-login'
 import Song from './components/song'
 import Library from './library'
 
-const Login = ({cb}) =>
-<FacebookLogin
-    appId="2301991643348749"
-    autoLoad={true}
-    fields="name,email,picture"
-    callback={cb} />
+const fbDefs = {
+    appId: "2301991643348749",
+    autoLoad: true,
+    fields: "name,email,picture"
+}
 
     // for our web socket online & focused ????
     // https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API
 
 function App() {
-  // const [credentials, setCredentials] = useState(undefined)
+  const [credentials, setCredentials] = useState(undefined)
   const [{current, songs}, setStatus] = useState({current: 'none', songs:[]})
-  // const cb = response => {
-  //   console.log(response)
-  //   setCredentials(response)
-  // }
 
    useEffect( () => {
     const es = new EventSource('/json2')
-    console.log('es is: ', es)
+    es.addEventListener("update", e => setStatus(JSON.parse(e.data)))
 
-    es.addEventListener("update", e => {
-      console.log(`setting play list to ${e.data}`);
-      setStatus(prev => JSON.parse(e.data))
-    })
-
-    return () => {
-      console.log('closing event source');
-      es.close()}
+    return () => es.close()
   }, []
   )
 
-  return  (<><h1>Songs</h1>
-  <p>Playing : {current}</p>
-  <ul>
-    {songs.map(({id, vote}) =>
-            <Song
-              key={id}
-              id={id}
-              { ... Library[id]}
-              vote= {vote}
-            />
-    )}
-  </ul>
-  {/* {!credentials ? <Login cb={cb}/> :''} */}
+  return  (<>
+    <h1>Songs</h1>
+    <p>Playing : {current  !== 'none' ? Library[current].title : 'none'}</p>
+    <ul>
+      {songs.map(({id, vote}) => <Song key={id} {...Library[id]} id={id} vote={vote}/>)}
+    </ul>
+    {!credentials && <FacebookLogin {...fbDefs} callback={r => {setCredentials(r);
+    console.log(r)}}/>}
   </>)
-
-
 }
 
 export default App;

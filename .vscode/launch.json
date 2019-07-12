@@ -9,7 +9,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceRoot}/index.mjs",
+            "program": "${workspaceRoot}/index.js",
             "envFile": "${workspaceFolder}/.env",
             "runtimeArgs": [
                 "--harmony",
